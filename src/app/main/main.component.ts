@@ -18,8 +18,8 @@ export class MainComponent implements OnInit {
     console.log(this.randomBooks$);
   }
 
-  bookDetail(id: number) {
-
-
+  bookDetail(id: any) {
+    this.router.navigateByUrl("/book-detail/" + id)
   }
+
 }

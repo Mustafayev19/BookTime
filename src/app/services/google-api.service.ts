@@ -7,12 +7,20 @@ import { Book, imageLink } from '../interfaces';
   providedIn: 'root'
 })
 export class BookService {
-  BookUrl: string = "https://www.googleapis.com/books/v1/volumes?q=filter=free-ebooks&full&key=AIzaSyBmBhAzmNNwegpkzuX9IM_gpyxWvG8dI-8";
-
+  bookUrl: string = "https://www.googleapis.com/books/v1/volumes?q=filter=free-ebooks&full&key=AIzaSyBmBhAzmNNwegpkzuX9IM_gpyxWvG8dI-8";
+  bookIdUrl: string = "https://www.googleapis.com/books/v1/volumes/";
+  key: string = "?key=AIzaSyBmBhAzmNNwegpkzuX9IM_gpyxWvG8dI-8"
   constructor(private http: HttpClient) { }
 
+  getBookById(id: any): Observable<Book> {
+    return this.http.get<any>(`${this.bookIdUrl}${id}${this.key}`).pipe(
+      map(response => this.mapToRandomBook(response))
+    );
+  }
+
+
   getRandomBooks(): Observable<Book[]> {
-    return this.http.get<any>(this.BookUrl).pipe(
+    return this.http.get<any>(this.bookUrl).pipe(
       map(response => response.items.slice(0, 8).map((data: any) => this.mapToRandomBook(data)))
     );
   }

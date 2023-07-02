@@ -1,1 +1,30 @@
-<p>book-detail works!</p>
+<ng-container *ngIf="Book$ | async as book">
+  <div class="min-h-screen bg-color2 py-8">
+    <div class="container mx-auto">
+      <div class="max-w-3xl mx-auto bg-color1 rounded shadow-md p-8">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">{{ book.title }}</h2>
+          <a routerLink="/main" class="text-sm text-color3 hover:text-yellow-500">Back to Main</a>
+        </div>
+
+        <div class="flex items-start">
+          <div class="w-48 h-64 bg-color3 rounded-lg flex items-center justify-center mr-6">
+            <img [src]="book.imageLinks.thumbnail" class="w-32 h-48" alt="Book Cover">
+          </div>
+          <div>
+            <p class="text-lg text-color4 mb-2">Publisher: {{ book.publisher }}</p>
+            <p class="text-lg text-color4 mb-2">Page Count: {{ book.pageCaunt }}</p>
+            <p class="text-lg text-color4 mb-2">Maturity Rating: {{ book.maturityRating }}</p>
+            <p class="text-lg text-color4 mb-2">Language: {{ book.language }}</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <p class="text-lg text-color4 mb-2">Web Reader Link:</p>
+          <a [href]="book.webReaderLink" target="_blank" class="text-lg text-color3 hover:text-yellow-500">{{
+            book.webReaderLink }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

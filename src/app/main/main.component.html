@@ -14,16 +14,15 @@
             <div class="left-0 bottom-0 h-[280px] w-28 border-2 border-color4 bg-slate-400">
                 <img class="h-full w-full" src="assets/images/side.png" style="background-size: cover;">
                 <button
-                    class="absolute left-5 text-color3 hover:text-yellow-500 top-28 h-6 w-20  bg-transparent whitespace-nowrap border border-cyan-600 "
-                    (click)="bookDetail(book.id)">Go
-                    Detail</button>
+                    class="absolute left-5 text-color3 hover:text-yellow-500 top-28 h-6 w-20 bg-transparent whitespace-nowrap border border-cyan-600"
+                    (click)="bookDetail(book.id)">
+                    Go Detail
+                </button>
 
                 <h2
                     class="absolute bottom-10 left-0 object cover p-1 text-color2 italic text-center whitespace-pre-wrap text-sm rotate-[50deg]">
-                    {{
-                    book.title
-                    }}</h2>
-
+                    {{ book.title }}
+                </h2>
             </div>
             <!-- right side -->
             <div class="left-[112px] bottom-0 right-0 h-[420px] w-64 side">
