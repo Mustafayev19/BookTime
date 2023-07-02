@@ -1,1 +1,40 @@
-<p>main works!</p>
+<!-- shelf -->
+<div class="absolute top-12 right-[76px] bg-gradient-to-r from-color4 to-color3 side3"></div>
+<div class="mt-10 mx-auto h-96 w-10/12 flex justify-center items-center border-8 border-color4 shadow-md shadow-color4">
+    <div class="mt-1 mx-auto h-[360px] w-[99%] border-2 border-color4 grid grid-cols-8 gap-0 relative">
+        <!-- book -->
+        <div class="relative col-span-1 z-0 hover:translate-y-6 hover:skew-x-3 transition-all duration-500"
+            *ngFor="let book of randomBooks$ | async">
+            <!-- head -->
+            <div
+                class="left-0 top-0 h-[76px] w-28 skew-x-[-15deg] ml-[10px] border-x-2 border-b-2 border-color4 bg-slate-400">
+                <img class="h-full w-full" src="assets/images/head.png" style="background-size: cover;">
+            </div>
+            <!-- front -->
+            <div class="left-0 bottom-0 h-[280px] w-28 border-2 border-color4 bg-slate-400">
+                <img class="h-full w-full" src="assets/images/side.png" style="background-size: cover;">
+                <button
+                    class="absolute left-5 text-color3 hover:text-yellow-500 top-28 h-6 w-20  bg-transparent whitespace-nowrap border border-cyan-600 "
+                    (click)="bookDetail(book.id)">Go
+                    Detail</button>
+
+                <h2
+                    class="absolute bottom-10 left-0 object cover p-1 text-color2 italic text-center whitespace-pre-wrap text-sm rotate-[50deg]">
+                    {{
+                    book.title
+                    }}</h2>
+
+            </div>
+            <!-- right side -->
+            <div class="left-[112px] bottom-0 right-0 h-[420px] w-64 side">
+                <img class="h-full w-full" [src]="book.imageLinks.thumbnail" style="background-size: cover;">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- parallelogram div -->
+<div class="absolute right-[44px] top-0 bg-gradient-to-b from-color3 to-color4 side2"></div>
+
+<div class="flex justify-center items-center mt-2">
+    <h1 class="text-3xl font-bold italic text-color4">BOOK SHELF</h1>
+</div>

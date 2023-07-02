@@ -1,0 +1,25 @@
+.side {
+    width: 29px;
+    height: 356px;
+    clip-path: polygon(0 21%, 68% 0, 69% 80%, 0% 100%);
+    position: absolute;
+
+}
+
+.side2 {
+    margin-top: 48px;
+    width: 64px;
+    height: 440px;
+    clip-path: polygon(0 13%, 47% 7%, 47% 83%, 0 100%);
+    position: absolute;
+
+}
+
+.side3 {
+
+    width: 1100px;
+    height: 80px;
+    clip-path: polygon(4% 40%, 100% 40%, 98% 70%, 0 72%);
+    position: absolute;
+
+}

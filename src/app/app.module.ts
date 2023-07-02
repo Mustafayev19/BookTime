@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { MainComponent } from './main/main.component';
 import { BookDetailComponent } from './book-detail/book-detail.component';
 import { HeadLineComponent } from './head-line/head-line.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { HeadLineComponent } from './head-line/head-line.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
