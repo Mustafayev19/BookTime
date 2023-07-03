@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BookService } from '../services/Book.service';
 
 @Component({
   selector: 'head-line',
@@ -6,5 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./head-line.component.css']
 })
 export class HeadLineComponent {
+  constructor(private bookService: BookService) { }
 
+  getSearchBook(input: string) {
+    this.bookService.setSearchValue(input.trim());
+  }
 }
+
+
+

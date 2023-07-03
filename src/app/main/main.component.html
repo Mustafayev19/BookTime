@@ -4,7 +4,7 @@
     <div class="mt-1 mx-auto h-[360px] w-[99%] border-2 border-color4 grid grid-cols-8 gap-0 relative">
         <!-- book -->
         <div class="relative col-span-1 z-0 hover:translate-y-6 hover:skew-x-3 transition-all duration-500"
-            *ngFor="let book of randomBooks$ | async">
+            *ngFor="let book of (searchedBooks$ | async) || (randomBooks$ | async)">
             <!-- head -->
             <div
                 class="left-0 top-0 h-[76px] w-28 skew-x-[-15deg] ml-[10px] border-x-2 border-b-2 border-color4 bg-slate-400">
@@ -20,7 +20,7 @@
                 </button>
 
                 <h2
-                    class="absolute bottom-10 left-0 object cover p-1 text-color2 italic text-center whitespace-pre-wrap text-sm rotate-[50deg]">
+                    class="absolute bottom-10 left-0 object cover p-1 text-color2 italic text-center whitespace-pre-wrap text-sm rotate-90">
                     {{ book.title }}
                 </h2>
             </div>
