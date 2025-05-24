@@ -1,39 +1,152 @@
-<!-- shelf -->
-<div class="absolute top-12 right-[76px] bg-gradient-to-r from-color4 to-color3 side3"></div>
-<div class="mt-10 mx-auto h-96 w-10/12 flex justify-center items-center border-8 border-color4 shadow-md shadow-color4">
-    <div class="mt-1 mx-auto h-[360px] w-[99%] border-2 border-color4 grid grid-cols-8 gap-0 relative">
-        <!-- book -->
-        <div class="relative col-span-1 z-0 hover:translate-y-6 hover:skew-x-3 transition-all duration-500"
-            *ngFor="let book of (searchedBooks$ | async) || (randomBooks$ | async)">
-            <!-- head -->
-            <div
-                class="left-0 top-0 h-[76px] w-28 skew-x-[-15deg] ml-[10px] border-x-2 border-b-2 border-color4 bg-slate-400">
-                <img class="h-full w-full" src="assets/images/head.png" style="background-size: cover;">
-            </div>
-            <!-- front -->
-            <div class="left-0 bottom-0 h-[280px] w-28 border-2 border-color4 bg-slate-400">
-                <img class="h-full w-full" src="assets/images/side.png" style="background-size: cover;">
-                <button
-                    class="absolute left-5 text-color3 hover:text-yellow-500 top-28 h-6 w-20 bg-transparent whitespace-nowrap border border-cyan-600"
-                    (click)="bookDetail(book.id)">
-                    Go Detail
-                </button>
+<div
+    class="min-h-screen bg-gradient-to-br from-slate-800 via-gray-800 to-slate-900 py-8 px-4 sm:px-6 lg:px-8 text-gray-200">
 
-                <h2
-                    class="absolute bottom-10 left-0 object cover p-1 text-color2 italic text-center whitespace-pre-wrap text-sm rotate-90">
-                    {{ book.title }}
-                </h2>
+    <div class="text-center pt-1 pb-4 sm:pt-4 sm:pb-8">
+        <div class="inline-flex items-center justify-center group cursor-pointer transition-transform duration-200 ease-in-out hover:scale-105"
+            routerLink="/main" aria-label="Go to BookTime homepage">
+            <img class="w-10 h-10 sm:w-12 sm:h-12 mr-2 sm:mr-3 drop-shadow-lg" src="assets/images/education.svg"
+                alt="BookTime Logo">
+            <h1
+                class="text-3xl sm:text-4xl font-bold italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-pink-500 group-hover:from-amber-300 group-hover:via-orange-300 group-hover:to-pink-400 transition-all duration-300">
+                BookTime
+            </h1>
+        </div>
+        <p class="mt-2 text-sm sm:text-base text-slate-300 tracking-wide">
+            Your Portal to a Universe of Stories & Knowledge
+        </p>
+    </div>
+
+    <div class="max-w-2xl mx-auto mb-6 sm:mb-10">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                    fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd"
+                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                        clip-rule="evenodd" />
+                </svg>
             </div>
-            <!-- right side -->
-            <div class="left-[112px] bottom-0 right-0 h-[420px] w-64 side">
-                <img class="h-full w-full" [src]="book.imageLinks.thumbnail" style="background-size: cover;">
+            <input type="text"
+                class="w-full pl-12 pr-4 py-3 text-gray-800 bg-slate-100 border-2 border-slate-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200 ease-in-out placeholder-gray-500"
+                [(ngModel)]="searchedValue" (ngModelChange)="onSearchModelChange()"
+                placeholder="Search by title, author, or ISBN..." aria-label="Search books">
+        </div>
+    </div>
+
+    <div *ngIf="searchedValue.trim() !== ''" class="max-w-screen-xl mx-auto">
+        <h2
+            class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 mb-2 text-center sm:text-left">
+            Search Results
+        </h2>
+        <p class="text-center sm:text-left text-gray-400 mb-8">
+            Showing results for: <span class="font-semibold text-amber-400">"{{ searchedValue }}"</span>
+        </p>
+
+        <div *ngIf="searchedBooks$ | async as searchedResults else loadingStateWarm">
+            <div *ngIf="searchedResults.length === 0"
+                class="bg-slate-700 border-l-4 border-orange-500 text-orange-300 p-5 rounded-lg shadow-md flex items-center space-x-3"
+                role="alert">
+                <svg class="h-7 w-7 text-orange-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <p class="font-bold text-lg">No Books Found</p>
+                    <p>We couldn't find any books matching your search for "{{ searchedValue }}". Please try different
+                        keywords.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8">
+                <div *ngFor="let book of searchedResults"
+                    class="group bg-slate-700 rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:shadow-amber-500/30 hover:bg-slate-600 hover:-translate-y-1 flex flex-col"
+                    (click)="bookDetail(book.id)" style="cursor: pointer;" role="button" tabindex="0">
+                    <div class="relative w-full h-60 sm:h-64 overflow-hidden bg-slate-600">
+                        <img [src]="book.imageLinks.thumbnail || book.imageLinks.smallThumbnail || 'assets/images/placeholder.png'"
+                            alt="Cover of {{ book.title }}"
+                            class="w-full h-full object-contain p-3 transition-transform duration-300 group-hover:scale-105">
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-lg font-semibold text-slate-100 leading-tight truncate group-hover:text-amber-400 transition-colors duration-200"
+                            title="{{ book.title }}">
+                            {{ book.title }}
+                        </h3>
+                        <p class="text-sm text-slate-300 mt-1 truncate" *ngIf="book.publisher"
+                            title="{{ book.publisher }}">
+                            {{ book.publisher }}
+                        </p>
+                        <div class="mt-auto pt-2 text-right">
+                            <span
+                                class="text-sm text-amber-500 font-semibold group-hover:text-amber-400 group-hover:underline">View
+                                Details &rarr;</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- parallelogram div -->
-<div class="absolute right-[44px] top-0 bg-gradient-to-b from-color3 to-color4 side2"></div>
 
-<div class="flex justify-center items-center mt-2">
-    <h1 class="text-3xl font-bold italic text-color4">BOOK SHELF</h1>
+    <div *ngIf="searchedValue.trim() === ''" class="max-w-screen-xl mx-auto">
+        <h2
+            class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-500 mb-4 mt-4 sm:mt-2 text-center sm:text-left">
+            Discover New Books
+        </h2>
+        <div *ngIf="randomBooks$ | async as randomBooksList else loadingStateWarm">
+            <div *ngIf="randomBooksList.length === 0"
+                class="bg-slate-700 border-l-4 border-emerald-500 text-emerald-300 p-5 rounded-lg shadow-md flex items-center space-x-3"
+                role="alert">
+                <svg class="h-7 w-7 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <p class="font-bold text-lg">No Books Available</p>
+                    <p>We couldn't find any books to display at the moment. Please check back later!</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8">
+                <div *ngFor="let book of randomBooksList"
+                    class="group bg-slate-700 rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:shadow-emerald-500/30 hover:bg-slate-600 hover:-translate-y-1 flex flex-col"
+                    (click)="bookDetail(book.id)" style="cursor: pointer;" role="button" tabindex="0">
+                    <div class="relative w-full h-60 sm:h-64 overflow-hidden bg-slate-600">
+                        <img [src]="book.imageLinks.thumbnail || book.imageLinks.smallThumbnail || 'assets/images/placeholder.png'"
+                            alt="Cover of {{ book.title }}"
+                            class="w-full h-full object-contain p-3 transition-transform duration-300 group-hover:scale-105">
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-lg font-semibold text-slate-100 leading-tight truncate group-hover:text-emerald-400 transition-colors duration-200"
+                            title="{{ book.title }}">
+                            {{ book.title }}
+                        </h3>
+                        <p class="text-sm text-slate-300 mt-1 truncate" *ngIf="book.publisher"
+                            title="{{ book.publisher }}">
+                            {{ book.publisher }}
+                        </p>
+                        <div class="mt-auto pt-2 text-right">
+                            <span
+                                class="text-sm text-emerald-500 font-semibold group-hover:text-emerald-400 group-hover:underline">View
+                                Details &rarr;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #loadingStateWarm>
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+            <svg class="animate-spin h-12 w-12 text-amber-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+            <p class="text-xl text-gray-300 font-medium">Loading books, please wait...</p>
+            <p class="text-gray-400">This might take a few moments.</p>
+        </div>
+    </ng-template>
+
 </div>
