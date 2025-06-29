@@ -1,48 +1,103 @@
-import { Component, OnInit } from '@angular/core';
-import { BookService } from '../services/Book.service'; // Düzgün yolu göstərin
-import { Observable } from 'rxjs';
-import { Book } from '../interfaces'; // Düzgün yolu göstərin
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BookService } from '../services/Book.service';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { Book } from '../interfaces';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.css'],
 })
-export class MainComponent implements OnInit {
+export class MainComponent implements OnInit, OnDestroy {
+  // İlkin "təsadüfi" kitablar üçün
   randomBooks$!: Observable<Book[]>;
-  searchedBooks$: Observable<Book[]>;
-  searchedValue: string = ''; // [(ngModel)] ilə bağlı input üçün
 
-  constructor(private bookService: BookService, private router: Router) {
-    // Servisdəki searchedBooks$ observable-nı birbaşa komponentin xassəsinə mənimsədirik
-    this.searchedBooks$ = this.bookService.searchedBooks$;
-  }
+  // Səhifələnmiş axtarış üçün yeni xüsusiyyətlər
+  paginatedBooks: Book[] = [];
+  currentPage: number = 1;
+  totalResults: number = 0;
+  pageSize: number = 12; // Dəyişdirilə bilər
+  isLoading: boolean = false;
+
+  searchedValue: string = '';
+  // Axtarış sorğusunu gecikmə ilə idarə etmək üçün Subject
+  private searchSubject = new Subject<string>();
+  private paginationSubscription!: Subscription;
+
+  constructor(private bookService: BookService, private router: Router) {}
 
   ngOnInit(): void {
+    // İlkin təsadüfi kitabları yüklə
     this.randomBooks$ = this.bookService.getRandomBooks();
-    // Səhifə yüklənəndə ilkin bir axtarış və ya nəticələrin təmizlənməsi üçün:
-    // this.bookService.setSearchValue(this.searchedValue); // Əgər searchedValue-da ilkin dəyər varsa
-    // Və ya
-    // this.bookService.setSearchValue(''); // Həmişə boş nəticə ilə başlamaq üçün
+
+    // Səhifələnmiş nəticələri dinlə
+    this.paginationSubscription = this.bookService.books$.subscribe(
+      (response) => {
+        this.isLoading = false;
+        if (response) {
+          this.paginatedBooks = response.books;
+          this.totalResults = response.totalItems;
+        } else {
+          // Axtarış təmizləndikdə və ya xəta baş verdikdə
+          this.paginatedBooks = [];
+          this.totalResults = 0;
+        }
+      }
+    );
+
+    // Axtarış sorğusunu debounce ilə idarə et
+    this.searchSubject
+      .pipe(
+        debounceTime(400), // İstifadəçi yazmağı dayandırdıqdan 400ms sonra
+        distinctUntilChanged(), // Yalnız dəyər dəyişdikdə
+        tap(() => {
+          this.isLoading = true; // Yüklənmə indikatorunu göstər
+          this.paginatedBooks = []; // Köhnə nəticələri təmizlə
+          this.totalResults = 0;
+        })
+      )
+      .subscribe((query) => {
+        this.currentPage = 1; // Yeni axtarışda həmişə 1-ci səhifəyə qayıt
+        this.bookService.searchBooks(query, this.currentPage, this.pageSize);
+      });
   }
 
-  // [(ngModel)] ilə bağlı inputun dəyəri dəyişdikdə çağırılır
-  onSearchModelChange(): void {
-    // Servisdəki debounceTime sayəsində hər hərf daxil edilməsinə dərhal sorğu getməyəcək
-    this.bookService.setSearchValue(this.searchedValue.trim());
+  ngOnDestroy(): void {
+    // Yaddaş sızmasının qarşısını almaq üçün subscription-ları dayandır
+    if (this.paginationSubscription) {
+      this.paginationSubscription.unsubscribe();
+    }
+    this.searchSubject.complete();
   }
 
-  // Bir düymə və ya Enter ilə birbaşa axtarış etmək üçün metod (parametrli)
-  // HTML-də bu metod çağırılmırsa, onu saxlamağa ehtiyac yoxdur.
-  // Əgər saxlayırsınızsa, HTML-də uyğun yerdə (məsələn, bir düymənin (click) hadisəsində) çağırın.
-  handleDirectSearch(query: string): void {
-    this.searchedValue = query; // Inputu yeniləmək üçün (əgər birbaşa inputdan gəlmirsə)
-    this.bookService.setSearchValue(query.trim());
+  // Axtarış qutusuna hər dəfə simvol daxil edildikdə çağırılır
+  onSearchChange(): void {
+    this.searchSubject.next(this.searchedValue.trim());
   }
 
-  // Parametri 'any' və ya 'string | number' edib, daxildə string-ə çevirə bilərsiniz
-  bookDetail(id: any): void { // və ya id: string | number
-    this.router.navigateByUrl(`/book-detail/${String(id)}`); // <--- String(id) ilə çevirmə
+  // Səhifələmə metodları
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || this.isLoading) {
+      return;
+    }
+    this.currentPage = page;
+    this.isLoading = true;
+    this.bookService.searchBooks(
+      this.searchedValue.trim(),
+      this.currentPage,
+      this.pageSize
+    );
+  }
+
+  get totalPages(): number {
+    if (this.totalResults === 0) return 0;
+    return Math.ceil(this.totalResults / this.pageSize);
+  }
+
+  // Detallı səhifəyə keçid
+  bookDetail(id: any): void {
+    this.router.navigateByUrl(`/book-detail/${String(id)}`);
   }
 }
