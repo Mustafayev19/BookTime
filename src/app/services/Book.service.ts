@@ -13,7 +13,6 @@ import {
 import { Book } from '../interfaces';
 import { environment } from '../../environments/environment';
 
-// Paginated results üçün interface
 export interface PaginatedBookResponse {
   books: Book[];
   totalItems: number;
@@ -26,7 +25,6 @@ export class BookService {
   private apiKey = environment.googleBooksApiKey;
   private baseUrl = environment.googleBooksApiBaseUrl;
 
-  // Canlı axtarış üçün (artıq istifadə olunmur, amma saxlamaq olar)
   private searchedValueSubject = new BehaviorSubject<string>('');
   public searchedBooks$: Observable<Book[]> = this.searchedValueSubject
     .asObservable()
@@ -50,7 +48,6 @@ export class BookService {
       })
     );
 
-  // Səhifələnmiş axtarış nəticələri üçün
   private booksSubject = new BehaviorSubject<PaginatedBookResponse | null>(
     null
   );
@@ -58,15 +55,13 @@ export class BookService {
 
   constructor(private http: HttpClient) {}
 
-  // Canlı axtarış üçün dəyəri təyin edir
   setSearchValue(value: string): void {
     this.searchedValueSubject.next(value);
   }
 
-  // Səhifələnmiş axtarış metodu
   searchBooks(query: string, page: number = 1, pageSize: number = 12): void {
     if (!query || query.trim() === '') {
-      this.booksSubject.next(null); // Axtarış boşdursa nəticələri təmizlə
+      this.booksSubject.next(null);
       return;
     }
 
@@ -86,7 +81,7 @@ export class BookService {
         ),
         catchError((error) => {
           console.error('Error fetching paginated books:', error);
-          this.booksSubject.next({ books: [], totalItems: 0 }); // Xəta zamanı boş nəticə göndər
+          this.booksSubject.next({ books: [], totalItems: 0 });
           return of(null);
         })
       )
@@ -97,7 +92,6 @@ export class BookService {
       });
   }
 
-  // Tək bir kitabı ID ilə tapır
   getBookById(id: string): Observable<Book | null> {
     const url = `${this.baseUrl}/${id}?key=${this.apiKey}`;
     return this.http.get<any>(url).pipe(
@@ -109,7 +103,6 @@ export class BookService {
     );
   }
 
-  // Təsadüfi kitablar gətirir
   getRandomBooks(): Observable<Book[]> {
     const randomSubjects = [
       'fiction',
@@ -125,7 +118,7 @@ export class BookService {
     const randomQuery =
       randomSubjects[Math.floor(Math.random() * randomSubjects.length)];
 
-    const randomIndex = Math.floor(Math.random() * 100); // Daha çox çeşidlilik üçün
+    const randomIndex = Math.floor(Math.random() * 100);
 
     const url = `${this.baseUrl}?q=subject:${randomQuery}&key=${this.apiKey}&maxResults=8&startIndex=${randomIndex}`;
 
@@ -133,19 +126,17 @@ export class BookService {
       map((response) => this.mapResponseToBooks(response)),
       catchError((error) => {
         console.error('Error fetching random books:', error);
-        return of([]); // Xəta zamanı boş massiv qaytar
+        return of([]);
       })
     );
   }
 
-  // API cavabını Book[] massivinə çevirən köməkçi funksiya
   private mapResponseToBooks(response: any): Book[] {
     return response.items && Array.isArray(response.items)
       ? response.items.map((data: any) => this.mapToBook(data))
       : [];
   }
 
-  // API datasını vahid Book obyektinə çevirir
   private mapToBook(data: any): Book {
     const volumeInfo = data.volumeInfo || {};
     return {
